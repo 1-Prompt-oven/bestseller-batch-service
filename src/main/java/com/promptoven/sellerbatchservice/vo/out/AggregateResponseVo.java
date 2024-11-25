@@ -13,5 +13,5 @@ public class AggregateResponseVo {
 
     private Long sellsCount;
 
-    private Integer ranking;
+    private Long ranking;
 }

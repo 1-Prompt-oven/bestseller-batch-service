@@ -25,10 +25,10 @@ public class AggregateEntity {
     private Long sellsCount;
 
     @Comment("판매자 순위")
-    private Integer ranking;
+    private Long ranking;
 
     @Builder
-    public AggregateEntity(Long id, String memberUuid, Long sellsCount, Integer ranking) {
+    public AggregateEntity(Long id, String memberUuid, Long sellsCount, Long ranking) {
         this.id = id;
         this.memberUuid = memberUuid;
         this.sellsCount = sellsCount;
@@ -39,7 +39,7 @@ public class AggregateEntity {
         this.sellsCount = sellsCount;
     }
 
-    public void updateRank(Integer ranking) {
+    public void updateRank(Long ranking) {
         this.ranking = ranking;
     }
 }

@@ -15,7 +15,7 @@ public class AggregateResponseDto {
 
     private Long sellsCount;
 
-    private Integer ranking;
+    private Long ranking;
 
     public static AggregateResponseDto toDto(AggregateEntity aggregateEntity) {
         return AggregateResponseDto.builder()

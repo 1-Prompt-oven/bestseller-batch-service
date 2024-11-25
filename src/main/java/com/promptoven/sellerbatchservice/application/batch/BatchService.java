@@ -118,7 +118,7 @@ public class BatchService {
 
         int rank = 1;
         for (AggregateEntity aggregate : allAggregates) {
-            aggregate.updateRank(rank++);
+            aggregate.updateRank((long) rank++);
         }
 
         aggregateRepository.saveAll(allAggregates);
