@@ -22,7 +22,7 @@ public class AggregateServiceImpl implements AggregateService {
         return aggregateEntity
                 .map(AggregateResponseDto::toDto)
                 .orElseGet(() -> new AggregateResponseDto(
-                        memberUuid, 0L
+                        memberUuid, 0L, null
                 ));
     }
 }

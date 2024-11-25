@@ -15,10 +15,13 @@ public class AggregateResponseDto {
 
     private Long sellsCount;
 
+    private Integer ranking;
+
     public static AggregateResponseDto toDto(AggregateEntity aggregateEntity) {
         return AggregateResponseDto.builder()
                 .memberUuid(aggregateEntity.getMemberUuid())
                 .sellsCount(aggregateEntity.getSellsCount())
+                .ranking(aggregateEntity.getRanking())
                 .build();
     }
 
@@ -26,6 +29,7 @@ public class AggregateResponseDto {
         return AggregateResponseVo.builder()
                 .memberUuid(aggregateResponseDto.getMemberUuid())
                 .sellsCount(aggregateResponseDto.getSellsCount())
+                .ranking(aggregateResponseDto.getRanking())
                 .build();
     }
 }
