@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -15,16 +17,14 @@ import java.util.List;
 @NoArgsConstructor
 public class RequestMessageDto {
 
-    private Long paymentId;
+    private Map<String, String> productSellerMap; // key: productUuid, value: memberUuid
 
-    private String memberUuid;
-
-    private List<String> productUuids;
-
-    public SellerBatchEntity toEntity(EventType type) {
-        return SellerBatchEntity.builder()
-                .memberUuid(memberUuid)
-                .type(type)
-                .build();
+    public List<SellerBatchEntity> toEntities(EventType type) {
+        return productSellerMap.values().stream()
+                .map(memberUuid -> SellerBatchEntity.builder()
+                        .memberUuid(memberUuid)
+                        .type(type)
+                        .build())
+                .collect(Collectors.toList());
     }
 }

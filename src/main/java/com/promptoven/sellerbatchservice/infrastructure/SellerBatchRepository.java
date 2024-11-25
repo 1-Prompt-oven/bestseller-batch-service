@@ -18,4 +18,6 @@ public interface SellerBatchRepository extends JpaRepository<SellerBatchEntity, 
             "WHERE s.type = :eventType " +
             "GROUP BY s.memberUuid")
     List<AggregateDto> findAggregatesByEventType(@Param("eventType") EventType eventType);
+
+    void deleteAllByType(EventType eventType);
 }

@@ -103,6 +103,8 @@ public class BatchService {
 
         aggregateRepository.saveAll(updatedEntities);
 
+        sellerBatchRepository.deleteAllByType(eventType);
+
         return RepeatStatus.FINISHED;
     }
 }

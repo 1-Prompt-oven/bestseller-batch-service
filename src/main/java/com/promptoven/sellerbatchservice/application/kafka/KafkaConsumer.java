@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,7 +38,9 @@ public class KafkaConsumer {
     }
 
     private void consumeEvent(RequestMessageDto message, EventType eventType) {
-        SellerBatchEntity sellerBatchEntity = message.toEntity(eventType);
-        sellerBatchRepository.save(sellerBatchEntity);
+
+        List<SellerBatchEntity> entities = message.toEntities(eventType);
+
+        sellerBatchRepository.saveAll(entities);
     }
 }
