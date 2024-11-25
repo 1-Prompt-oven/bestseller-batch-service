@@ -12,5 +12,15 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+  config:
+    import: classpath:eventTopic.yml
+
   kafka:
-    bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
+    text-bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
+
+  batch:
+    jdbc:
+      initialize-schema: always
+
+server:
+  port: 8083
