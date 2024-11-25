@@ -24,14 +24,22 @@ public class AggregateEntity {
     @Column(nullable = false)
     private Long sellsCount;
 
+    @Comment("판매자 순위")
+    private Long ranking;
+
     @Builder
-    public AggregateEntity(Long id, String memberUuid, Long sellsCount) {
+    public AggregateEntity(Long id, String memberUuid, Long sellsCount, Long ranking) {
         this.id = id;
         this.memberUuid = memberUuid;
         this.sellsCount = sellsCount;
+        this.ranking = ranking;
     }
 
     public void updateSellsCount(Long sellsCount) {
         this.sellsCount = sellsCount;
+    }
+
+    public void updateRank(Long ranking) {
+        this.ranking = ranking;
     }
 }

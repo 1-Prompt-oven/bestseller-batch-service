@@ -103,8 +103,25 @@ public class BatchService {
 
         aggregateRepository.saveAll(updatedEntities);
 
+        updateRankings();
+
         sellerBatchRepository.deleteAllByType(eventType);
 
         return RepeatStatus.FINISHED;
     }
+
+    private void updateRankings() {
+        List<AggregateEntity> allAggregates = aggregateRepository.findAll();
+
+        // 판매량 기준으로 내림차순 정렬
+        allAggregates.sort((a, b) -> b.getSellsCount().compareTo(a.getSellsCount()));
+
+        int rank = 1;
+        for (AggregateEntity aggregate : allAggregates) {
+            aggregate.updateRank((long) rank++);
+        }
+
+        aggregateRepository.saveAll(allAggregates);
+    }
+
 }

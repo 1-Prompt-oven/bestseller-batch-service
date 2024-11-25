@@ -12,4 +12,6 @@ public class AggregateResponseVo {
     private String memberUuid;
 
     private Long sellsCount;
+
+    private Long ranking;
 }
