@@ -1,17 +1,15 @@
 package com.promptoven.sellerbatchservice.vo.out;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
 @Builder
-@AllArgsConstructor
+@Getter
 public class AggregateResponseVo {
 
-    private String memberUuid;
+    private final String memberUuid;
 
-    private Long sellsCount;
+    private final Long sellsCount;
 
-    private Long ranking;
+    private final Long ranking;
 }

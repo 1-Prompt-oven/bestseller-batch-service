@@ -7,6 +7,7 @@ import com.promptoven.sellerbatchservice.global.common.CursorPage;
 import com.promptoven.sellerbatchservice.infrastructure.AggregateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class AggregateServiceImpl implements AggregateService {
 
     private final AggregateRepository aggregateRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public AggregateResponseDto getAggregateData(String memberUuid) {
 
@@ -25,11 +27,14 @@ public class AggregateServiceImpl implements AggregateService {
 
         return aggregateEntity
                 .map(AggregateResponseDto::toDto)
-                .orElseGet(() -> new AggregateResponseDto(
-                        memberUuid, 0L, null
-                ));
+                .orElseGet(() -> AggregateResponseDto.builder()
+                        .memberUuid(memberUuid)
+                        .sellsCount(0L)
+                        .ranking(null)
+                        .build());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CursorPage<AggregateResponseDto> getBestSellersByRanking(AggregatePagingRequestDto requestDto) {
         List<AggregateEntity> entities = aggregateRepository.findBestSellersByRanking(
