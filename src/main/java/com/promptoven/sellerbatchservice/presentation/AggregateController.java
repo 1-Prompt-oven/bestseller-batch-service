@@ -7,6 +7,7 @@ import com.promptoven.sellerbatchservice.dto.out.AggregateResponseDto;
 import com.promptoven.sellerbatchservice.global.common.CursorPage;
 import com.promptoven.sellerbatchservice.global.common.response.BaseResponse;
 import com.promptoven.sellerbatchservice.vo.out.AggregateResponseVo;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,12 +21,14 @@ public class AggregateController {
     private final AggregateService aggregateService;
     private final BatchSchedule batchSchedule;
 
+    @Operation(summary = "배치 테스트", description = "배치 테스트")
     @GetMapping("/testSchedule")
     public String batch() throws Exception {
         batchSchedule.scheduleBatch();
         return "OK";
     }
 
+    @Operation(summary = "판매자별 집계 데이터 조회", description = "판매자별 집계 데이터 조회")
     @GetMapping({"/{memberUuid}"})
     public BaseResponse<AggregateResponseVo> getAggregateData(@PathVariable String memberUuid) {
 
@@ -34,6 +37,7 @@ public class AggregateController {
         return new BaseResponse<>(AggregateResponseDto.toVo(aggregateResponseDto));
     }
 
+    @Operation(summary = "베스트셀러 조회", description = "베스트셀러 조회")
     @GetMapping("/bestSellers")
     public BaseResponse<CursorPage<AggregateResponseVo>> getBestSellersByRanking(
             @RequestParam(required = false) Integer lastRanking,
