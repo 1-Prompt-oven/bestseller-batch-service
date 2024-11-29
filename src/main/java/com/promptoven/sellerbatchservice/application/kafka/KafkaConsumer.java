@@ -16,8 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KafkaConsumer {
 
-    //    private static final String CREATE_TOPIC = "create_seller_event"; // 각각 이벤트의 발행
-    //    private static final String DELETE_TOPIC = "delete_seller_event";
     private static final String GROUP_ID = "kafka-seller-service";
     private final SellerBatchRepository sellerBatchRepository;
 

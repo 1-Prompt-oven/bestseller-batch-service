@@ -2,13 +2,11 @@ package com.promptoven.sellerbatchservice.dto.out;
 
 import com.promptoven.sellerbatchservice.domain.AggregateEntity;
 import com.promptoven.sellerbatchservice.vo.out.AggregateResponseVo;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
 @Builder
-@AllArgsConstructor
+@Getter
 public class AggregateResponseDto {
 
     private String memberUuid;
