@@ -32,7 +32,6 @@ spring:
       on-profile: local
     import:
       - "optional:configserver:http://localhost:8888"
-      - classpath:eventTopic.yml
   datasource:
     url: jdbc:mysql://localhost:3306/cart_service
     username: root
@@ -51,7 +50,6 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
-
   cloud:
     config:
       enabled: false
@@ -67,7 +65,6 @@ spring:
       on-profile: prod
     import:
       - classpath:eventTopic.yml
-      - "optional:configserver:http://config-server:8888"
   datasource:
     url: jdbc:mysql://mysql:3306/seller_batch
     username: root
@@ -82,10 +79,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
   kafka:
     text-bootstrap-servers: kafka-1:9092,kafka-2:9092,kafka-3:9092
-  cloud:
-    config:
-      name: seller-batch-service,eventTopic
-      fail-fast: false
+
 eureka:
   client:
     serviceUrl:
