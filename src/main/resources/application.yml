@@ -6,6 +6,9 @@ spring:
     name: seller-batch-service
   config:
     import: classpath:eventTopic.yml
+  batch:
+    jdbc:
+      initialize-schema: always
 
 springdoc:
   api-docs:
@@ -47,9 +50,6 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
   kafka:
     text-bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
-  batch:
-    jdbc:
-      initialize-schema: always
   cloud:
     config:
       enabled: false
