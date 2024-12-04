@@ -12,4 +12,6 @@ public class AggregateResponseVo {
     private final Long sellsCount;
 
     private final Long ranking;
+
+    private final Double reviewAvg;
 }

@@ -15,11 +15,14 @@ public class AggregateResponseDto {
 
     private Long ranking;
 
+    private Double reviewAvg;
+
     public static AggregateResponseDto toDto(AggregateEntity aggregateEntity) {
         return AggregateResponseDto.builder()
                 .memberUuid(aggregateEntity.getMemberUuid())
                 .sellsCount(aggregateEntity.getSellsCount())
                 .ranking(aggregateEntity.getRanking())
+                .reviewAvg(aggregateEntity.getReviewAvg())
                 .build();
     }
 
@@ -28,6 +31,7 @@ public class AggregateResponseDto {
                 .memberUuid(aggregateResponseDto.getMemberUuid())
                 .sellsCount(aggregateResponseDto.getSellsCount())
                 .ranking(aggregateResponseDto.getRanking())
+                .reviewAvg(aggregateResponseDto.getReviewAvg())
                 .build();
     }
 }
