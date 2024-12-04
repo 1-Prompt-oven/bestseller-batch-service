@@ -28,12 +28,16 @@ public class AggregateEntity {
     @Comment("판매자 순위")
     private Long ranking;
 
+    @Comment("리뷰 평균")
+    private Double reviewAvg;
+
     @Builder
-    public AggregateEntity(Long id, String memberUuid, Long sellsCount, Long ranking) {
+    public AggregateEntity(Long id, String memberUuid, Long sellsCount, Long ranking, Double reviewAvg) {
         this.id = id;
         this.memberUuid = memberUuid;
         this.sellsCount = sellsCount;
         this.ranking = ranking;
+        this.reviewAvg = reviewAvg;
     }
 
     public void updateSellsCount(Long sellsCount) {
@@ -42,5 +46,9 @@ public class AggregateEntity {
 
     public void updateRank(Long ranking) {
         this.ranking = ranking;
+    }
+
+    public void updateReviewAvg(Double reviewAvg) {
+        this.reviewAvg = reviewAvg;
     }
 }

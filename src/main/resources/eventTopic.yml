@@ -2,3 +2,5 @@
 payment-create-event: payment-create-event # {paymentId : String, memberUUID : String, productUUID : List<String>}
 
 payment-delete-event: payment-delete-event # {paymentId : String}
+
+aggregate-finish-event: aggregate-finish-event
