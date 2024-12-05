@@ -9,8 +9,10 @@ import org.hibernate.annotations.Comment;
 
 @Getter
 @Entity
+@Table(name = "seller_aggregate", indexes = {
+        @Index(name = "idx_seller_aggregate_member_uuid", columnList = "memberUuid"),
+        @Index(name = "idx_seller_aggregate_ranking", columnList = "ranking ASC")})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "seller_aggregate")
 public class AggregateEntity {
 
     @Id
