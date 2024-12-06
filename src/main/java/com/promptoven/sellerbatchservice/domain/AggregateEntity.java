@@ -12,8 +12,10 @@ import java.time.LocalDate;
 @Getter
 @Entity
 @Table(name = "seller_aggregate", indexes = {
-        @Index(name = "idx_seller_aggregate_member_uuid", columnList = "memberUuid"),
-        @Index(name = "idx_seller_aggregate_ranking", columnList = "ranking ASC")})
+        @Index(name = "idx_seller_aggregate_member_date", columnList = "memberUuid, date"),
+        @Index(name = "idx_seller_aggregate_date_ranking", columnList = "date, ranking ASC"),
+        @Index(name = "idx_seller_aggregate_member", columnList = "memberUuid")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AggregateEntity {
 

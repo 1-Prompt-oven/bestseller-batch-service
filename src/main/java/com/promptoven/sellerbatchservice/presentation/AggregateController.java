@@ -46,19 +46,19 @@ public class AggregateController {
             @RequestParam(required = false) Integer lastRanking,
             @RequestParam(defaultValue = "20") Integer pageSize,
             @RequestParam LocalDate date) {
-            AggregatePagingRequestDto requestDto = AggregatePagingRequestDto.builder()
-                    .lastRanking(lastRanking)
-                    .pageSize(pageSize)
-                    .date(date)
-                    .build();
+        AggregatePagingRequestDto requestDto = AggregatePagingRequestDto.builder()
+                .lastRanking(lastRanking)
+                .pageSize(pageSize)
+                .date(date)
+                .build();
 
-            CursorPage<AggregateResponseDto> responsePage = aggregateService.getBestSellersByRanking(requestDto);
+        CursorPage<AggregateResponseDto> responsePage = aggregateService.getBestSellersByRanking(requestDto);
 
-            List<AggregateResponseVo> content = responsePage.getContent().stream()
-                    .map(AggregateResponseDto::toVo)
-                    .toList();
+        List<AggregateResponseVo> content = responsePage.getContent().stream()
+                .map(AggregateResponseDto::toVo)
+                .toList();
 
-            return new BaseResponse<>(new CursorPage<>(content, responsePage.getNextCursor(), responsePage.getHasNext(),
-                    responsePage.getPageSize(), responsePage.getPage()));
-        }
+        return new BaseResponse<>(new CursorPage<>(content, responsePage.getNextCursor(), responsePage.getHasNext(),
+                responsePage.getPageSize(), responsePage.getPage()));
     }
+}
