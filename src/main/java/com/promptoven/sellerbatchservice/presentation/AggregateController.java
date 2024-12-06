@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -30,9 +31,11 @@ public class AggregateController {
 
     @Operation(summary = "판매자별 집계 데이터 조회", description = "판매자별 집계 데이터 조회")
     @GetMapping({"/{memberUuid}"})
-    public BaseResponse<AggregateResponseVo> getAggregateData(@PathVariable String memberUuid) {
+    public BaseResponse<AggregateResponseVo> getAggregateData(
+            @PathVariable String memberUuid,
+            @RequestParam LocalDate date) {
 
-        AggregateResponseDto aggregateResponseDto = aggregateService.getAggregateData(memberUuid);
+        AggregateResponseDto aggregateResponseDto = aggregateService.getAggregateData(memberUuid, date);
 
         return new BaseResponse<>(AggregateResponseDto.toVo(aggregateResponseDto));
     }
@@ -41,20 +44,21 @@ public class AggregateController {
     @GetMapping("/bestSellers")
     public BaseResponse<CursorPage<AggregateResponseVo>> getBestSellersByRanking(
             @RequestParam(required = false) Integer lastRanking,
-            @RequestParam(defaultValue = "20") Integer pageSize
-    ) {
-        AggregatePagingRequestDto requestDto = AggregatePagingRequestDto.builder()
-                .lastRanking(lastRanking)
-                .pageSize(pageSize)
-                .build();
+            @RequestParam(defaultValue = "20") Integer pageSize,
+            @RequestParam LocalDate date) {
+            AggregatePagingRequestDto requestDto = AggregatePagingRequestDto.builder()
+                    .lastRanking(lastRanking)
+                    .pageSize(pageSize)
+                    .date(date)
+                    .build();
 
-        CursorPage<AggregateResponseDto> responsePage = aggregateService.getBestSellersByRanking(requestDto);
+            CursorPage<AggregateResponseDto> responsePage = aggregateService.getBestSellersByRanking(requestDto);
 
-        List<AggregateResponseVo> content = responsePage.getContent().stream()
-                .map(AggregateResponseDto::toVo)
-                .toList();
+            List<AggregateResponseVo> content = responsePage.getContent().stream()
+                    .map(AggregateResponseDto::toVo)
+                    .toList();
 
-        return new BaseResponse<>(new CursorPage<>(content, responsePage.getNextCursor(), responsePage.getHasNext(),
-                responsePage.getPageSize(), responsePage.getPage()));
+            return new BaseResponse<>(new CursorPage<>(content, responsePage.getNextCursor(), responsePage.getHasNext(),
+                    responsePage.getPageSize(), responsePage.getPage()));
+        }
     }
-}

@@ -17,9 +17,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -34,94 +36,106 @@ public class BatchService {
     @Bean
     public Job aggregateJob() {
         return new JobBuilder("aggregateJob", jobRepository)
-                .start(createStep())
-                .next(deleteStep())
+                .start(processEventStep(jobRepository, transactionManager))
                 .build();
     }
 
     @Bean
-    public Step createStep() {
-        return new StepBuilder("createStep", jobRepository)
-                .tasklet(createTasklet(), transactionManager)
+    public Step processEventStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new StepBuilder("processEventStep", jobRepository)
+                .tasklet(eventTasklet(), transactionManager)
                 .build();
     }
 
     @Bean
-    public Step deleteStep() {
-        return new StepBuilder("deleteStep", jobRepository)
-                .tasklet(deleteTasklet(), transactionManager)
-                .build();
+    public Tasklet eventTasklet() {
+        return (contribution, chunkContext) -> {
+            processEvent(EventType.CREATE);
+            processEvent(EventType.DELETE);
+            return RepeatStatus.FINISHED;
+        };
     }
 
-    @Bean
-    public Tasklet createTasklet() {
-        return (contribution, chunkContext) -> processTasklet(EventType.CREATE);
-    }
+    private void processEvent(EventType eventType) {
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
 
-    @Bean
-    public Tasklet deleteTasklet() {
-        return (contribution, chunkContext) -> processTasklet(EventType.DELETE);
-    }
+        // 모든 판매자의 최신 데이터 가져오기
+        Map<String, AggregateEntity> latestData = aggregateRepository.findLatestDataForAllMembers().stream()
+                .collect(Collectors.toMap(AggregateEntity::getMemberUuid, entity -> entity));
 
-    private RepeatStatus processTasklet(EventType eventType) {
+        // 오늘 이미 저장된 데이터 가져오기
+        Map<String, AggregateEntity> todayDataMap = aggregateRepository.findAllByDate(today).stream()
+                .collect(Collectors.toMap(AggregateEntity::getMemberUuid, entity -> entity));
 
+        // 이벤트에 따라 데이터 가져오기
         List<AggregateDto> aggregateDtoList = sellerBatchRepository.findAggregatesByEventType(eventType);
 
-        Map<String, AggregateEntity> existingEntities = aggregateRepository.findAllByMemberUuidIn(
-                aggregateDtoList.stream()
-                        .map(AggregateDto::getMemberUuid)
-                        .collect(Collectors.toList())
-        ).stream().collect(Collectors.toMap(AggregateEntity::getMemberUuid, entity -> entity));
+        for (AggregateDto aggregateDto : aggregateDtoList) {
+            AggregateEntity existingEntity = todayDataMap.get(aggregateDto.getMemberUuid());
+            AggregateEntity latestEntity = latestData.get(aggregateDto.getMemberUuid());
+            Long dailySellsCount = aggregateDto.getCount();
 
-        List<AggregateEntity> updatedEntities = aggregateDtoList.stream()
-                .map(aggregateDto -> {
-                    AggregateEntity existingEntity = existingEntities.get(aggregateDto.getMemberUuid());
+            if (existingEntity != null) {
+                // 이미 오늘 데이터가 존재하면 업데이트
+                existingEntity.updateSellsCount(existingEntity.getSellsCount() + dailySellsCount);
+                existingEntity.setDailySellsCount(dailySellsCount);
+            } else {
+                // 오늘 데이터가 없으면 새 데이터 생성
+                Long totalSellsCount = dailySellsCount;
+                if (latestEntity != null) {
+                    totalSellsCount += latestEntity.getSellsCount();
+                }
 
-                    if (eventType == EventType.CREATE) {
-                        if (existingEntity != null) {
-                            existingEntity.updateSellsCount(existingEntity.getSellsCount() + aggregateDto.getCount());
-                            return existingEntity;
-                        } else {
-                            return aggregateDto.toEntity(aggregateDto);
-                        }
-                    } else if (eventType == EventType.DELETE) {
-                        if (existingEntity != null) {
-                            long updatedCount = existingEntity.getSellsCount() - aggregateDto.getCount();
-                            if (updatedCount > 0) {
-                                existingEntity.updateSellsCount(updatedCount);
-                                return existingEntity;
-                            } else {
-                                aggregateRepository.delete(existingEntity);
-                                return null;
-                            }
-                        }
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        aggregateRepository.saveAll(updatedEntities);
-
-        updateRankings();
-
-        sellerBatchRepository.deleteAllByType(eventType);
-
-        return RepeatStatus.FINISHED;
-    }
-
-    private void updateRankings() {
-        List<AggregateEntity> allAggregates = aggregateRepository.findAll();
-
-        // 판매량 기준으로 내림차순 정렬
-        allAggregates.sort((a, b) -> b.getSellsCount().compareTo(a.getSellsCount()));
-
-        int rank = 1;
-        for (AggregateEntity aggregate : allAggregates) {
-            aggregate.updateRank((long) rank++);
+                todayDataMap.put(aggregateDto.getMemberUuid(), AggregateEntity.builder()
+                        .memberUuid(aggregateDto.getMemberUuid())
+                        .sellsCount(totalSellsCount)
+                        .dailySellsCount(dailySellsCount)
+                        .reviewAvg(latestEntity != null ? latestEntity.getReviewAvg() : null)
+                        .ranking(null) // 이후 랭킹 계산
+                        .rankingChange(null) // 이후 랭킹 계산
+                        .date(today)
+                        .build());
+            }
         }
 
-        aggregateRepository.saveAll(allAggregates);
-    }
+        // 판매 기록이 없는 판매자의 데이터 추가
+        for (String memberUuid : latestData.keySet()) {
+            if (!todayDataMap.containsKey(memberUuid)) {
+                AggregateEntity latestEntity = latestData.get(memberUuid);
 
+                todayDataMap.put(memberUuid, AggregateEntity.builder()
+                        .memberUuid(latestEntity.getMemberUuid())
+                        .sellsCount(latestEntity.getSellsCount()) // 최신 판매량 유지
+                        .dailySellsCount(0L) // 오늘 판매량이 없으면 0으로 초기화
+                        .reviewAvg(latestEntity.getReviewAvg())
+                        .ranking(null) // 이후 랭킹 계산
+                        .rankingChange(null) // 이후 랭킹 계산
+                        .date(today)
+                        .build());
+            }
+        }
+
+        // 랭킹 계산
+        List<AggregateEntity> sortedTodayData = new ArrayList<>(todayDataMap.values());
+        sortedTodayData.sort(Comparator.comparing(AggregateEntity::getSellsCount).reversed());
+
+        int rank = 1;
+        for (AggregateEntity entity : sortedTodayData) {
+            entity.updateRank((long) rank++);
+
+            // 어제 데이터와 비교하여 랭킹 변동 수 계산
+            AggregateEntity yesterdayEntity = aggregateRepository.findByMemberUuidAndDate(
+                    entity.getMemberUuid(), yesterday).orElse(null);
+
+            if (yesterdayEntity != null && yesterdayEntity.getRanking() != null) {
+                entity.updateRankingChange(yesterdayEntity.getRanking() - entity.getRanking());
+            } else {
+                entity.updateRankingChange(null); // 신규 데이터는 변동 없음
+            }
+        }
+
+        // 저장
+        aggregateRepository.saveAll(sortedTodayData);
+    }
 }

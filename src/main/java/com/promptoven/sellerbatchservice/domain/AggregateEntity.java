@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDate;
+
 @Getter
 @Entity
 @Table(name = "seller_aggregate", indexes = {
@@ -23,7 +25,7 @@ public class AggregateEntity {
     @Column(nullable = false, length = 50)
     private String memberUuid;
 
-    @Comment("판매 수량")
+    @Comment("총 판매 수량")
     @Column(nullable = false)
     private Long sellsCount;
 
@@ -33,13 +35,26 @@ public class AggregateEntity {
     @Comment("리뷰 평균")
     private Double reviewAvg;
 
+    @Comment("집계 날짜")
+    @Column(nullable = false)
+    private LocalDate date;
+
+    @Comment("랭킹 변동 수")
+    private Long rankingChange;
+
+    @Comment("일 별 판매량")
+    private Long dailySellsCount;
+
     @Builder
-    public AggregateEntity(Long id, String memberUuid, Long sellsCount, Long ranking, Double reviewAvg) {
+    public AggregateEntity(Long id, String memberUuid, Long sellsCount, Long ranking, Double reviewAvg, LocalDate date, Long rankingChange, Long dailySellsCount) {
         this.id = id;
         this.memberUuid = memberUuid;
         this.sellsCount = sellsCount;
         this.ranking = ranking;
         this.reviewAvg = reviewAvg;
+        this.date = date;
+        this.rankingChange = rankingChange;
+        this.dailySellsCount = dailySellsCount;
     }
 
     public void updateSellsCount(Long sellsCount) {
@@ -50,7 +65,15 @@ public class AggregateEntity {
         this.ranking = ranking;
     }
 
+    public void updateRankingChange(Long rankingChange) {
+        this.rankingChange = rankingChange;
+    }
+
     public void updateReviewAvg(Double reviewAvg) {
         this.reviewAvg = reviewAvg;
+    }
+
+    public void setDailySellsCount(Long dailySellsCount) {
+        this.dailySellsCount = dailySellsCount;
     }
 }

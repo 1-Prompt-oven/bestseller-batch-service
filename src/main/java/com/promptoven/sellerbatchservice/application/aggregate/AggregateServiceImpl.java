@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,9 +22,8 @@ public class AggregateServiceImpl implements AggregateService {
 
     @Transactional(readOnly = true)
     @Override
-    public AggregateResponseDto getAggregateData(String memberUuid) {
-
-        Optional<AggregateEntity> aggregateEntity = aggregateRepository.findByMemberUuid(memberUuid);
+    public AggregateResponseDto getAggregateData(String memberUuid, LocalDate date) {
+        Optional<AggregateEntity> aggregateEntity = aggregateRepository.findByMemberUuidAndDate(memberUuid, date);
 
         return aggregateEntity
                 .map(AggregateResponseDto::toDto)
@@ -31,15 +31,17 @@ public class AggregateServiceImpl implements AggregateService {
                         .memberUuid(memberUuid)
                         .sellsCount(0L)
                         .ranking(null)
+                        .date(date)
                         .build());
     }
 
     @Transactional(readOnly = true)
     @Override
     public CursorPage<AggregateResponseDto> getBestSellersByRanking(AggregatePagingRequestDto requestDto) {
-        List<AggregateEntity> entities = aggregateRepository.findBestSellersByRanking(
+        List<AggregateEntity> entities = aggregateRepository.findBestSellersByRankingAndDate(
                 requestDto.getLastRanking(),
-                requestDto.getPageSize() + 1
+                requestDto.getPageSize() + 1,
+                requestDto.getDate()
         );
 
         Long nextCursor = null;
@@ -63,4 +65,5 @@ public class AggregateServiceImpl implements AggregateService {
                 .page(dtos.size())
                 .build();
     }
+
 }

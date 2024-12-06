@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -15,16 +16,17 @@ public class AggregateRepositoryImpl implements AggregateRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<AggregateEntity> findBestSellersByRanking(Integer lastRanking, int pageSize) {
+    public List<AggregateEntity> findBestSellersByRankingAndDate(Integer lastRanking, int pageSize, LocalDate date) {
         QAggregateEntity aggregate = QAggregateEntity.aggregateEntity;
 
         return jpaQueryFactory
                 .selectFrom(aggregate)
-                .where(lastRanking == null
-                        ? null
-                        : aggregate.ranking.gt(lastRanking)) // Cursor 조건
-                .orderBy(aggregate.ranking.asc()) // 정렬 조건
-                .limit(pageSize) // 페이징 처리
+                .where(
+                        aggregate.date.eq(date)
+                                .and(lastRanking == null ? null : aggregate.ranking.gt(lastRanking))
+                )
+                .orderBy(aggregate.ranking.asc())
+                .limit(pageSize)
                 .fetch();
     }
 }

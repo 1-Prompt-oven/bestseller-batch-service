@@ -5,6 +5,8 @@ import com.promptoven.sellerbatchservice.vo.out.AggregateResponseVo;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Builder
 @Getter
 public class AggregateResponseDto {
@@ -17,12 +19,21 @@ public class AggregateResponseDto {
 
     private Double reviewAvg;
 
+    private LocalDate date;
+
+    private Long rankingChange;
+
+    private Long dailySellsCount;
+
     public static AggregateResponseDto toDto(AggregateEntity aggregateEntity) {
         return AggregateResponseDto.builder()
                 .memberUuid(aggregateEntity.getMemberUuid())
                 .sellsCount(aggregateEntity.getSellsCount())
                 .ranking(aggregateEntity.getRanking())
                 .reviewAvg(aggregateEntity.getReviewAvg())
+                .date(aggregateEntity.getDate())
+                .rankingChange(aggregateEntity.getRankingChange())
+                .dailySellsCount(aggregateEntity.getDailySellsCount())
                 .build();
     }
 
@@ -32,6 +43,9 @@ public class AggregateResponseDto {
                 .sellsCount(aggregateResponseDto.getSellsCount())
                 .ranking(aggregateResponseDto.getRanking())
                 .reviewAvg(aggregateResponseDto.getReviewAvg())
+                .date(aggregateResponseDto.getDate())
+                .rankingChange(aggregateResponseDto.getRankingChange())
+                .dailySellsCount(aggregateResponseDto.getDailySellsCount())
                 .build();
     }
 }
