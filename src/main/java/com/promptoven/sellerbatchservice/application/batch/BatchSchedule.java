@@ -17,11 +17,11 @@ public class BatchSchedule {
 
     @Scheduled(cron = "0 0 0 * * *") // 매일 0시 0분 0초에 실행
     public void scheduleBatch() throws Exception {
-
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addLong("timestamp", System.currentTimeMillis()) // 고유 파라미터
-                .toJobParameters();
-
-        jobLauncher.run(jobRegistry.getJob("aggregateJob"), jobParameters);
+//
+//        JobParameters jobParameters = new JobParametersBuilder()
+//                .addLong("timestamp", System.currentTimeMillis()) // 고유 파라미터
+//                .toJobParameters();
+//
+//        jobLauncher.run(jobRegistry.getJob("aggregateJob"), jobParameters);
     }
 }
